@@ -61,7 +61,11 @@
 ;;  (boolean-implies t nil) => nil
 ;;  (boolean-implies nil nil) => t
 (defun boolean-implies (a b)
-  ;; Your implementation goes here
+    (cond
+    ((and (equal a t) (equal b t)) t) ; If a & b = true, return true
+    ((and (equal a nil) (equal b nil)) t) ; If a & b = false, return true
+    ((and (equal a nil) (equal b t)) t) ; If a is nil and b is t, return true
+    (t nil)) ; The other cases all return nil
 )
 
 ;; Return the bi-implication (if and only if) of a and b
