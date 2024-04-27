@@ -16,7 +16,7 @@
 		((equal item (car set)) t)
 		(t (set-member (cdr set) item)))
 )
-;(write (set-member '(1 2 3) 4))
+;(print (set-member '(1 2 3) 4))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -89,9 +89,17 @@
 ;;  (boolean-xor nil nil) => nil
 
 (defun boolean-xor (a b)
- (and (not (and a b)) (or a b))
+ (and (or a b) (not (and a b)))
 )
-
+(print '(boolean-xor))
+(print '(XOR of T T))
+(print (boolean-xor t t))
+(print '(XOR of T F))
+(print (boolean-xor t nil))
+(print '(XOR of F T))
+(print (boolean-xor nil t))
+(print '(XOR of F F))
+(print (boolean-xor nil nil))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Return the implication of a and b
@@ -105,10 +113,17 @@
 ;;  (boolean-implies nil nil) => t
 
 (defun boolean-implies (a b)
-
-
-
+ (or (not a) b)
 )
+(print '(boolean-implies))
+(print '(implication of T T))
+(print (boolean-implies t t))
+(print '(implication of T F))
+(print (boolean-implies t nil))
+(print '(implication of F T))
+(print (boolean-implies nil t))
+(print '(implication of F F))
+(print (boolean-implies nil nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -123,10 +138,17 @@
 ;;  (boolean-iff nil nil) => t
 
 (defun boolean-iff (a b)
-
-;;<Your implementation go here >
-
+ (and (or (not a) b) (or (not b) a))
 )
+(print '(boolean-iff))
+(print '(bi-implication of T T))
+(print (boolean-iff t t))
+(print '(bi-implication of T F))
+(print (boolean-iff t nil))
+(print '(bi-implication of F T))
+(print (boolean-iff nil t))
+(print '(bi-implication of F F))
+(print (boolean-iff nil nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
