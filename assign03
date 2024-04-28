@@ -1,7 +1,3 @@
-
-(defparameter test-1 '(1 2 3)) ; Test set 1
-(defparameter test-2 '(2 4 6)) ; Test set 2
-
 ;; Return T if item is a member of set.
 ;; Return NIL if item is not a member of set.
 ;; The type of set is list.
@@ -9,12 +5,11 @@
 ;;  (set-member '(1 2) 1) => T
 ;;  (set-member '(1 2) 3) => NIL
 (defun set-member (set item)
-  (cond 
-    ((null set) nil)  ; Base case that sees if a set is empty  then it returns nil
-    ((equal item (car set)) t)  ; Return T if first atom is item
-    (t (set-member (cdr set) item))) ; Calls this function recursively 
+	(cond
+		((equal set nil) nil) ; Base case that sees if a set is empty then it returns nil
+		((equal item (car set)) t) ; Return T if first atom is item
+		(t (set-member (cdr set) item))) ; Calls this function recursively
 )
-
 ;; Return the union of set-1 and set-2.
 ;; The result should contain no duplicates.
 ;; Assume set-1 contains no duplicates and set-2 contains no duplicates.
@@ -40,8 +35,6 @@
       (if (set-member set-2 (car set-1)) ;checks if the first element of set-1 is also a member of set-2
           (cons (car set-1) (set-intersection (cdr set-1) set-2)) ;first item in set-1 is a member of set-2, creates a new list, checks rest of list.
           (set-intersection (cdr set-1) set-2)))) ;first item fo set-1 is not a member of set-2, check rest of list
-)
-
 
 ;; Return the difference of set-1 and set-2.
 ;; The result should contain no duplicates.
@@ -54,14 +47,13 @@
       (if (set-member set-2 (car set-1)) ;same as set-intersection
           (set-diff (cdr set-1) set-2) ;first element is a member of set-2, recursively call set-diff to check rest of list.
           (cons (car set-1) (set-diff (cdr set-1) set-2))))) ;first item(set-1) not a member of set-2 then make a list and continue to check through recursion.
-)
 
 ;; Return the exclusive or of a and b
 ;; Examples:
 ;;  (boolean-xor t nil) => t
 ;;  (boolean-xor nil nil) => nil
 (defun boolean-xor (a b)
-  ;; Your implementation goes here
+  (and (or a b) (not (and a b)))
 )
 
 ;; Return the implication of a and b
@@ -93,5 +85,21 @@
 ;;  (boolean-eval '(and t nil)) => nil
 ;;  (boolean-eval '(and t (or nil t))) => t
 (defun boolean-eval (exp)
-  ;; Your implementation goes here
+  (cond
+
+    ((set-member '(t nil) exp) exp)
+    ((set-member '(xor implies iff or not and) (car exp))  ; Check for valid operators
+     (let ((operand1 (boolean-eval (second exp))) ;; These operands go through this function
+           (operand2 (boolean-eval (third exp)))) ;; recursively, these are in the LOCAL SCOPE! 
+       (cond                                      ;; after
+         ((set-member (list (car exp)) 'and) (and operand1 operand2))
+         ((set-member (list (car exp)) 'or) (or operand1 operand2))
+         ((set-member (list (car exp)) 'not) (not operand1))
+         ((set-member (list (car exp)) 'xor) (boolean-xor operand1 operand2))
+         ((set-member (list (car exp)) 'implies) (boolean-implies operand1 operand2))
+         ((set-member (list (car exp)) 'iff) (boolean-iff operand1 operand2))
+         (t (error "Invalid operator: ~A" (car exp))))))
+
+    (t (error "Invalid input: ~A" exp)))  ; Error for invalid input
 )
+
