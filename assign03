@@ -87,11 +87,17 @@
 (defun boolean-eval (exp)
   (cond
 
-    ((set-member '(t nil) exp) exp)
-    ((set-member '(xor implies iff or not and) (car exp))  ; Check for valid operators
-     (let ((operand1 (boolean-eval (second exp))) ;; These operands go through this function
-           (operand2 (boolean-eval (third exp)))) ;; recursively, these are in the LOCAL SCOPE! 
-       (cond                                      ;; after
+    ((set-member '(t nil) exp) exp) ; Base case, returns t or nil when no operator is there
+    ((set-member '(xor implies iff or not and) (car exp))  ; Check for valid operator
+
+     ;; These operands go through this function recursively,
+     ;; and are in the LOCAL SCOPE! Until they hit the base case with t or nil 
+     (let ((operand1 (boolean-eval (second exp))) 
+           (operand2 (boolean-eval (third exp)))) 
+
+     ;; After the operands hit the base case they can evaluate using this cond and
+     ;; return control to the previous boolean-eval call.
+       (cond
          ((set-member (list (car exp)) 'and) (and operand1 operand2))
          ((set-member (list (car exp)) 'or) (or operand1 operand2))
          ((set-member (list (car exp)) 'not) (not operand1))
