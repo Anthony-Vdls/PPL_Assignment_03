@@ -12,7 +12,7 @@
 
 (defun set-member (set item)
 	(cond
-		((null set) nil) ; Base case that sees if a set is empty then it returns nil
+		((equal set nil) nil) ; Base case that sees if a set is empty then it returns nil
 		((equal item (car set)) t) ; Return T if first atom is item
 		(t (set-member (cdr set) item))) ; Calls this function recursively
 )
@@ -36,7 +36,7 @@
 ;;   (set-union '(1 2) '(2 4)) => '(1 2 4)
 
 (defun set-union (set-1 set-2)
-   (if (null set-1)
+   (if (equal set-1 nil)
       set-2  ; Base case if set-1 is empty return set-2
       (if (set-member set-2 (car set-1)) ; Checks if first atom is already in list-2
           (set-union (cdr set-1) set-2)  ; If it is, the fist atom in set-1 wont get looked at
