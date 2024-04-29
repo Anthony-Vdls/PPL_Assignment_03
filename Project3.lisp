@@ -117,7 +117,7 @@
 ;;  (boolean-xor nil nil) => nil
 
 (defun boolean-xor (a b)
- (and (or a b) (not (and a b)))
+ (and (not (and a b)) (or a b))
 )
 (print '(----------------------------------------------------------------------------------------------------))
 (print '(boolean-xor))
@@ -129,6 +129,7 @@
 (print (boolean-xor nil t))
 (print '(XOR of F F))
 (print (boolean-xor nil nil))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Return the implication of a and b
@@ -168,7 +169,7 @@
 ;;  (boolean-iff nil nil) => t
 
 (defun boolean-iff (a b)
- (and (or (not a) b) (or (not b) a))
+ (or (and a b) (and (not a) (not b)))
 )
 (print '(----------------------------------------------------------------------------------------------------))
 (print '(boolean-iff))
@@ -197,6 +198,6 @@
 
 (defun boolean-eval (exp)
 
-
+  
 
 )
