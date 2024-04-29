@@ -196,8 +196,129 @@
 
 ;;  (boolean-eval '(and t (or nil t)) => t
 
+
+;             8
+;
+; Evaluate a boolean expression.
+; Handle NOT, AND, OR, XOR, IMPLIES, and IFF.
+;; Examples:
+;;  (boolean-eval '(and t nil)) => nil
+;;  (boolean-eval '(and t (or nil t))) => t
+
+
 (defun boolean-eval (exp)
+  (format t "~%~%> Expression:  ~a" exp)
+ 
+  (let* (
+	 (bool_operator (car exp)) 
+	 (operands (cdr exp)) 
+	 (operands_len (length operands))
+	 (left_operand (car operands)) 
+	 )
+   
+    (format t "~%~%~%bool_operator :~T~T~T~T~T  ~a" bool_operator)
+    (format t "~%operands:~T~T~T~T~T~T~T~T~T  ~a" operands)
+    (format t "~%operand list length:~T~T ~a" operands_len)
+    (format t "~%left_operand:~T~T~T~T~T~T~T  ~a" left_operand)
+    (format t "~%right operand:~T~T~T~T~T~T~T ~a" (car(cdr operands)))
+    
+   
+  (format t "~%~%____________________________________________" )
 
-  
+;______________________Main cond starts here_____________
+    (cond
+;---------------------------Base Cases----------------------------------------------------- 
+      ( ; base cases: exp == t or exp = nil, boolean_operator == exp
+      (or (equal (car exp) 't) (equal (car exp) 'nil)) (car exp)
+      )
 
-)
+       ( ; Check for valid operator
+       (not (set-member '(xor implies iff or not and) bool_operator))
+       (format t "~%>>>>>> ERROR Invalid Operator: ~a"  bool_operator)
+       )
+;---------------------------Not Operator---------------------------------------------------
+      
+      (   ; length == 1
+	   (equal operands_len 1) 			
+   ; (if (atom left_operand) (not left_operand) ( not(boolean-eval left_operand)))
+  (if (set-member '(t nil) left_operand) (not left_operand) ( not(boolean-eval left_operand)))	   
+       )
+;---------------------------Two Operands-----------------------------------------------------
+
+      (	; length == 2
+       (equal operands_len 2) ; condition to start sub cond
+;______________________Sub cond starts here
+
+       (cond
+;--------------------------------------------------------------------------------
+;---and------ "and" expression check
+         (  
+	   (equal bool_operator 'and) ; bool_operator == and
+
+	   ;(atom  car(cdr operands))
+	   (if (set-member '(t nil) (car(cdr operands))) ; Check for a single t/nil  operand
+	       ; if true
+	        (and left_operand  (car(cdr operands)))
+		;else
+		(and left_operand  (boolean-eval (car (cdr operands)))))
+	   ) ;; end
+;---or------ "or" expression check
+	  ( 
+	   (equal bool_operator 'or) ; bool_operator == or
+				
+	   (if (set-member '(t nil) (car(cdr operands)))
+	       ; if true
+	        (or left_operand  (car(cdr operands)))
+		;else
+		(or left_operand  (boolean-eval (car (cdr operands)))))
+	   ); or
+;---xor------ "exclusive or" expression check (uses "boolean-xor" method)
+	  ( 
+	   (equal bool_operator 'xor) ; bool_operator == xor
+				
+	   (if (set-member '(t nil) (car(cdr operands)))
+	       ; if true
+	        (boolean-xor left_operand  (car(cdr operands)))
+		;else
+		(boolean-xor left_operand  (boolean-eval (car (cdr operands)))))
+	   ); xor
+
+;---implies------ "implication" expression check (uses "boolean-implies" method)
+	  ( 
+	   (equal bool_operator 'implies) ; bool_operator == implies
+				
+	   (if (set-member '(t nil) (car(cdr operands)))
+	       ; if true
+	        (boolean-implies left_operand  (car(cdr operands)))
+		;else
+		(boolean-implies left_operand  (boolean-eval (car (cdr operands)))))
+	   ); implies
+
+;---iff------ "bi-implication" expression check (uses "boolean-implies" method)
+	  ( 
+	   (equal bool_operator 'iff) ; bool_operator == iff
+				
+	   (if (set-member '(t nil) (car(cdr operands)))
+	       ; if true
+	        (boolean-iff left_operand  (car(cdr operands)))
+		;else
+	        (boolean-iff left_operand  (boolean-eval (car (cdr operands)))))
+	   ); iff
+	  
+;----------------------------------------------------------------------	  
+        
+	  )
+ ;______________________Sub cond ends here
+	   
+	 ) 	; length == 2 end
+
+     ; (t (error "Invalid input: ~A" exp)))  ; Error for invalid input
+	  )
+;______________________Main cond ends here ______________
+
+
+    ) ;; LET
+ )  ;; DEFUN
+
+
+;  (boolean-eval ' (and t (iff t (or nil (implies t (not nil)))))) = T
