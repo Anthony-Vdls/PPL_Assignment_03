@@ -214,7 +214,7 @@
 	 (operands (cdr exp)) 
 	 (operands_len (length operands))
 	 (left_operand (car operands)) 
-	 )
+         )
    
     (format t "~%~%~%bool_operator :~T~T~T~T~T  ~a" bool_operator)
     (format t "~%operands:~T~T~T~T~T~T~T~T~T  ~a" operands)
@@ -239,10 +239,12 @@
 ;---------------------------Not Operator---------------------------------------------------
       
       (   ; length == 1
-	   (equal operands_len 1) 			
+	   (and (equal operands_len 1) (equal bool_operator 'not)) 			
    ; (if (atom left_operand) (not left_operand) ( not(boolean-eval left_operand)))
   (if (set-member '(t nil) left_operand) (not left_operand) ( not(boolean-eval left_operand)))	   
-       )
+	   )
+    
+
 ;---------------------------Two Operands-----------------------------------------------------
 
       (	; length == 2
@@ -250,69 +252,101 @@
 ;______________________Sub cond starts here
 
        (cond
+
 ;--------------------------------------------------------------------------------
-;---and------ "and" expression check
-         (  
+;---and------ "and" expression check     
+          (  
 	   (equal bool_operator 'and) ; bool_operator == and
+	   ; (if (and (atom left_operand) (atom (car(cdr operands))))
+	   (if (and (set-member '(t nil) left_operand) (set-member '(t nil) (car(cdr operands))))
+	       (and left_operand  (car(cdr operands))) ; if true (Single operands on both sides)
+	       (if (and (not (set-member '(t nil) left_operand)) (not(set-member '(t nil) (car(cdr operands)))))
+	         (and  (boolean-eval left_operand)  (boolean-eval (car (cdr operands)))) ;Multiple  operands on both sides
+	       (if(set-member '(t nil) left_operand)
+		  (and left_operand  (boolean-eval (car (cdr operands)))) ; Left operand is single 
+	   
+		   (and (boolean-eval left_operand) (car (cdr operands) )) ; Right operand is single 
+		  )
+	       )
+	       )
 
-	   ;(atom  car(cdr operands))
-	   (if (set-member '(t nil) (car(cdr operands))) ; Check for a single t/nil  operand
-	       ; if true
-	        (and left_operand  (car(cdr operands)))
-		;else
-		(and left_operand  (boolean-eval (car (cdr operands)))))
-	   ) ;; end
+	   
+	   ) ;; and
+
 ;---or------ "or" expression check
-	  ( 
-	   (equal bool_operator 'or) ; bool_operator == or
-				
-	   (if (set-member '(t nil) (car(cdr operands)))
-	       ; if true
-	        (or left_operand  (car(cdr operands)))
-		;else
-		(or left_operand  (boolean-eval (car (cdr operands)))))
-	   ); or
+	  (  
+	    (equal bool_operator 'or) ; bool_operator == or
+	   (if (and (set-member '(t nil) left_operand) (set-member '(t nil) (car(cdr operands))))
+	       (or left_operand  (car(cdr operands))) ; if true (Single operands on both sides)
+	       (if (and (not (set-member '(t nil) left_operand)) (not(set-member '(t nil) (car(cdr operands)))))
+	         (or  (boolean-eval left_operand)  (boolean-eval (car (cdr operands)))) ;Multiple  operands on both sides
+	       (if(set-member '(t nil) left_operand)
+		  (or left_operand  (boolean-eval (car (cdr operands)))) ; Left operand is single 
+	   
+		   (or (boolean-eval left_operand) (car (cdr operands) )) ; Right operand is single 
+		  )
+	       )
+	       )
+	    ) ;; or
+	  
 ;---xor------ "exclusive or" expression check (uses "boolean-xor" method)
-	  ( 
-	   (equal bool_operator 'xor) ; bool_operator == xor
-				
-	   (if (set-member '(t nil) (car(cdr operands)))
-	       ; if true
-	        (boolean-xor left_operand  (car(cdr operands)))
-		;else
-		(boolean-xor left_operand  (boolean-eval (car (cdr operands)))))
-	   ); xor
-
+	  	  (  
+	    (equal bool_operator 'xor) ; bool_operator == xor
+	   (if (and (set-member '(t nil) left_operand) (set-member '(t nil) (car(cdr operands))))
+	       (boolean-xor  left_operand  (car(cdr operands))) ; if true (Single operands on both sides)
+	       (if (and (not (set-member '(t nil) left_operand)) (not(set-member '(t nil) (car(cdr operands)))))
+	         (boolean-xor   (boolean-eval left_operand)  (boolean-eval (car (cdr operands)))) ;Multiple  operands on both sides
+	       (if(set-member '(t nil) left_operand)
+		  (boolean-xor  left_operand  (boolean-eval (car (cdr operands)))) ; Left operand is single 
+	   
+		   (boolean-xor  (boolean-eval left_operand) (car (cdr operands) )) ; Right operand is single 
+		  )
+	       )
+	       )
+	    ) ;; xor
+		  
 ;---implies------ "implication" expression check (uses "boolean-implies" method)
-	  ( 
-	   (equal bool_operator 'implies) ; bool_operator == implies
-				
-	   (if (set-member '(t nil) (car(cdr operands)))
-	       ; if true
-	        (boolean-implies left_operand  (car(cdr operands)))
-		;else
-		(boolean-implies left_operand  (boolean-eval (car (cdr operands)))))
-	   ); implies
+	  	  	  (  
+	    (equal bool_operator 'implies) ; bool_operator == implies
+	   (if (and (set-member '(t nil) left_operand) (set-member '(t nil) (car(cdr operands))))
+	       (boolean-implies  left_operand  (car(cdr operands))) ; if true (Single operands on both sides)
+	       (if (and (not (set-member '(t nil) left_operand)) (not(set-member '(t nil) (car(cdr operands)))))
+	         (boolean-implies   (boolean-eval left_operand)  (boolean-eval (car (cdr operands)))) ;Multiple  operands on both sides
+	       (if(set-member '(t nil) left_operand)
+		  (boolean-implies  left_operand  (boolean-eval (car (cdr operands)))) ; Left operand is single 
+	   
+		   (boolean-implies  (boolean-eval left_operand) (car (cdr operands) )) ; Right operand is single 
+		  )
+	       )
+	       )
+	    ) ;; implies
 
 ;---iff------ "bi-implication" expression check (uses "boolean-implies" method)
-	  ( 
-	   (equal bool_operator 'iff) ; bool_operator == iff
-				
-	   (if (set-member '(t nil) (car(cdr operands)))
-	       ; if true
-	        (boolean-iff left_operand  (car(cdr operands)))
-		;else
-	        (boolean-iff left_operand  (boolean-eval (car (cdr operands)))))
-	   ); iff
-	  
+	   (
+        (equal bool_operator 'iff) ; bool_operator == iff
+	   (if (and (set-member '(t nil) left_operand) (set-member '(t nil) (car(cdr operands))))
+	       (boolean-iff  left_operand  (car(cdr operands))) ; if true (Single operands on both sides)
+	       (if (and (not (set-member '(t nil) left_operand)) (not(set-member '(t nil) (car(cdr operands)))))
+	         (boolean-iff   (boolean-eval left_operand)  (boolean-eval (car (cdr operands)))) ;Multiple  operands on both sides
+	       (if(set-member '(t nil) left_operand)
+		  (boolean-iff  left_operand  (boolean-eval (car (cdr operands)))) ; Left operand is single 
+	   
+		   (boolean-iff  (boolean-eval left_operand) (car (cdr operands) )) ; Right operand is single 
+		  )
+	       )
+	       )
+	) ;; iff
+	   
 ;----------------------------------------------------------------------	  
         
 	  )
  ;______________________Sub cond ends here
 	   
-	 ) 	; length == 2 end
+       ) 	; length == 2 end
 
-     ; (t (error "Invalid input: ~A" exp)))  ; Error for invalid input
+      ; Invalid expression
+      (t (format t "~%>>>>>> ERROR Invalid Expression ~a " exp))
+
 	  )
 ;______________________Main cond ends here ______________
 
@@ -321,4 +355,16 @@
  )  ;; DEFUN
 
 
-;  (boolean-eval ' (and t (iff t (or nil (implies t (not nil)))))) = T
+;  (boolean-eval ' (and t (iff t (or nil (implies t (not nil)))))) == T
+
+;  (boolean-eval '(implies (implies t t) (implies t nil))) = NIL
+;  (boolean-eval '(and (and t (and t t)) (and (and t t) nil))) == NIL
+
+; (boolean-eval '(iff (iff t t) (or nil (and t nil)))) == NIL
+
+
+;(boolean-eval '(iff or (iff t t) (or nil (and t nil)))) == ERROR Invalid Expression
+
+; (boolean-eval '(iffff (iff t t) (or nil (and t nil)))) == ERROR Invalid Operator				
+
+
